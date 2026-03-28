@@ -22,7 +22,7 @@ LINK_WHITELIST = ["discord.com", "discord.gg"]
 class Moderation(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.model = genai.GenerativeModel(model_name="gemini-2.0-flash")
+        self.model = genai.GenerativeModel(model_name="gemini-1.5-flash-8b")
         self.message_tracker = defaultdict(list)
         self.clean_trackers.start()
 
