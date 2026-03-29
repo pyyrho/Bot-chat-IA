@@ -27,7 +27,7 @@ class MyBot(commands.Bot):
             help_command=None,
             activity=discord.Activity(
                 type=discord.ActivityType.watching,
-                name="o servidor 👀"
+                name="✨ Animando a galera!"
             )
         )
 
