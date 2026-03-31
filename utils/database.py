@@ -80,14 +80,14 @@ class Database:
                 );
                 CREATE INDEX IF NOT EXISTS idx_partners_guild ON partners(guild_id);
             """)
-        # Migração: desativa configs perigosas em servidores existentes
-        await conn.execute("""
-            UPDATE mod_config
-            SET anti_caps     = FALSE,
-                anti_links    = FALSE,
-                ai_moderation = FALSE
-            WHERE anti_caps = TRUE OR anti_links = TRUE OR ai_moderation = TRUE
-        """)
+            # Migração: desativa configs perigosas em servidores existentes
+            await conn.execute("""
+                UPDATE mod_config
+                SET anti_caps     = FALSE,
+                    anti_links    = FALSE,
+                    ai_moderation = FALSE
+                WHERE anti_caps = TRUE OR anti_links = TRUE OR ai_moderation = TRUE
+            """)
         logger.info("✅ Tabelas verificadas/criadas!")
 
     async def close(self):
