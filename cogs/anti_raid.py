@@ -53,7 +53,7 @@ class AntiRaid(commands.Cog):
     async def on_member_join(self, member: discord.Member):
         guild = member.guild
         config = await self.get_config(guild.id)
-        if not config.get("enabled", True):
+        if not config.get("enabled", False):
             return
 
         # Verificação de conta nova
