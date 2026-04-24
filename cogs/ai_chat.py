@@ -20,47 +20,70 @@ logger = logging.getLogger("AIChat")
 OWNER_ID = 1317406607776288872
 OWNER_NAME = "Isabelle"
 
-# ── Modelos OpenRouter (primário, gratuitos) ──────────────────
-# Cada modelo tem uma especialidade. O bot seleciona o melhor
-# de acordo com o tipo de mensagem detectado.
+# ══════════════════════════════════════════════════════════════
+#  TRIO PRINCIPAL — APIs gratuitas de alta capacidade
+#
+#  1. Groq          → https://console.groq.com/keys
+#  2. Cerebras      → https://cloud.cerebras.ai/  (Settings > API Keys)
+#  3. SambaNova     → https://cloud.sambanova.ai/  (API > API Keys)
+#
+#  Cada provedor suporta múltiplas chaves (rotação automática).
+#  Configure no Railway como:
+#    GROQ_API_KEY, GROQ_API_KEY_2 … GROQ_API_KEY_5
+#    CEREBRAS_API_KEY, CEREBRAS_API_KEY_2 … CEREBRAS_API_KEY_5
+#    SAMBANOVA_API_KEY, SAMBANOVA_API_KEY_2 … SAMBANOVA_API_KEY_5
+#
+#  OpenRouter continua disponível como fallback extra (opcional):
+#    OPENROUTER_API_KEY, OPENROUTER_API_KEY_2, OPENROUTER_API_KEY_3
+# ══════════════════════════════════════════════════════════════
 
+# ── Modelos Groq ──────────────────────────────────────────────
+# Documentação: https://console.groq.com/docs/models
+GROQ_MODELS = [
+    "llama-3.3-70b-versatile",   # principal — muito capaz, contexto longo
+    "llama3-70b-8192",            # alternativa sólida
+    "gemma2-9b-it",               # leve e rápido
+    "mixtral-8x7b-32768",         # bom contexto longo
+    "llama3-8b-8192",             # mais leve, última opção
+]
+
+# ── Modelos Cerebras ──────────────────────────────────────────
+# Documentação: https://inference-docs.cerebras.ai/api-reference/chat-completions
+# Cerebras tem hardware próprio (WSE-3) — latência extremamente baixa
+CEREBRAS_MODELS = [
+    "llama-4-scout-17b-16e-instruct",  # Llama 4 Scout — mais recente e capaz
+    "llama-3.3-70b",                    # 70B robusto
+    "llama3.1-8b",                      # rápido e leve
+]
+
+# ── Modelos SambaNova ─────────────────────────────────────────
+# Documentação: https://community.sambanova.ai/t/supported-models/193
+# SambaNova usa RDUs — muito rápido para modelos grandes
+SAMBANOVA_MODELS = [
+    "Meta-Llama-3.3-70B-Instruct",      # principal — robusto
+    "Meta-Llama-3.1-405B-Instruct",     # 405B! só disponível no free tier deles
+    "Meta-Llama-3.1-70B-Instruct",      # alternativa
+    "Qwen3-32B",                         # bom raciocínio
+    "Qwen2.5-Coder-32B-Instruct",       # especializado em código
+]
+
+# ── Modelos OpenRouter (fallback extra, opcional) ─────────────
 OPENROUTER_MODELS = {
-    # Análise de imagem — único com visão no free tier com 128K contexto
     "vision":    "nvidia/nemotron-nano-12b-v2-vl:free",
-
-    # Bate-papo geral (1º) — GPT-OSS 120B, primeiro open-weight da OpenAI
     "chat":      "openai/gpt-oss-120b:free",
-
-    # Bate-papo geral (2º) — Llama 3.3 70B, fallback rápido pro chat
     "chat2":     "meta-llama/llama-3.3-70b-instruct:free",
-
-    # Acadêmico / raciocínio denso — Nemotron Super 120B, 262K contexto
     "academic":  "nvidia/nemotron-3-super-120b-a12b:free",
-
-    # Código / programação — Qwen3 Coder, melhor free tier para código
     "code":      "qwen/qwen3-coder:free",
-
-    # Respostas rápidas / agente — Ling Flash, 104B params / 7.4B ativos
     "fast":      "inclusionai/ling-2.6-flash:free",
 }
 
-# Fallback: se o modelo especializado falhar, tenta esses em ordem
 OPENROUTER_FALLBACK_ORDER = [
-    "openai/gpt-oss-120b:free",                  # chat principal
-    "meta-llama/llama-3.3-70b-instruct:free",     # chat fallback
-    "nvidia/nemotron-3-super-120b-a12b:free",     # acadêmico
-    "inclusionai/ling-2.6-flash:free",            # rápido
-    "qwen/qwen3-coder:free",                      # código
-    "nvidia/nemotron-nano-12b-v2-vl:free",        # visão
-]
-
-# ── Modelos Groq (fallback quando OpenRouter esgotar) ─────────
-GROQ_MODELS = [
-    "llama-3.3-70b-versatile",        # principal, muito capaz
-    "llama3-70b-8192",                 # alternativa sólida
-    "gemma2-9b-it",                    # Google Gemma, leve e rápido
-    "mixtral-8x7b-32768",              # Mixtral, bom contexto longo
-    "llama3-8b-8192",                  # mais leve, última opção
+    "openai/gpt-oss-120b:free",
+    "meta-llama/llama-3.3-70b-instruct:free",
+    "nvidia/nemotron-3-super-120b-a12b:free",
+    "inclusionai/ling-2.6-flash:free",
+    "qwen/qwen3-coder:free",
+    "nvidia/nemotron-nano-12b-v2-vl:free",
 ]
 
 
@@ -132,7 +155,7 @@ COMPORTAMENTO GERAL
 ════════════════════════════════════════
 
 PROIBIDO:
-- Mencionar que é IA, Groq, OpenRouter, LLaMA ou qualquer tecnologia — você é o RevolutX
+- Mencionar que é IA, Groq, Cerebras, SambaNova, OpenRouter, LLaMA ou qualquer tecnologia — você é o RevolutX
 - Começar respostas sempre da mesma forma
 - Usar mais de 2 emojis por mensagem
 - Ser excessivamente animado ou usar "Vamos nessa!" toda hora
@@ -251,14 +274,13 @@ def detect_query_type(message: str) -> str:
 
 
 def select_openrouter_models(query_type: str, has_image: bool) -> list[str]:
-    """Retorna lista de modelos em ordem de preferência para o tipo de pergunta."""
+    """Retorna lista de modelos OpenRouter em ordem de preferência."""
     if has_image:
         return [OPENROUTER_MODELS["vision"]]
     if query_type in ("academic", "link", "news"):
         return [OPENROUTER_MODELS["academic"], OPENROUTER_MODELS["chat"], OPENROUTER_MODELS["chat2"]]
     if query_type == "code":
         return [OPENROUTER_MODELS["code"], OPENROUTER_MODELS["chat"]]
-    # chat → tenta GPT-OSS primeiro, depois Llama como fallback rápido
     return [OPENROUTER_MODELS["chat"], OPENROUTER_MODELS["chat2"]]
 
 
@@ -369,7 +391,67 @@ class AIChat(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-        # ── OpenRouter (primário) ─────────────────────────────
+        # ── 1. Groq (primário) — 5 chaves, rotação automática ──
+        # Pegue suas chaves em: https://console.groq.com/keys
+        self.groq_keys = []
+        for var in ["GROQ_API_KEY", "GROQ_API_KEY_2", "GROQ_API_KEY_3", "GROQ_API_KEY_4", "GROQ_API_KEY_5"]:
+            key = os.getenv(var)
+            if key:
+                self.groq_keys.append(Groq(api_key=key))
+                logger.info(f"✅ {var} carregada ({key[:8]}...)")
+
+        if self.groq_keys:
+            logger.info(f"✅ {len(self.groq_keys)} chave(s) Groq carregada(s)")
+        else:
+            logger.warning("⚠️ Nenhuma GROQ_API_KEY encontrada")
+
+        self.groq_key_index = 0
+        self.groq_model_index = 0
+
+        # ── 2. Cerebras (secundário) — 5 chaves, rotação automática ──
+        # Pegue suas chaves em: https://cloud.cerebras.ai/ → Settings > API Keys
+        self.cerebras_clients = []
+        for var in ["CEREBRAS_API_KEY", "CEREBRAS_API_KEY_2", "CEREBRAS_API_KEY_3", "CEREBRAS_API_KEY_4", "CEREBRAS_API_KEY_5"]:
+            key = os.getenv(var)
+            if key:
+                # Cerebras é compatível com a API OpenAI
+                self.cerebras_clients.append(AsyncOpenAI(
+                    api_key=key,
+                    base_url="https://api.cerebras.ai/v1",
+                ))
+                logger.info(f"✅ {var} carregada ({key[:8]}...)")
+
+        if self.cerebras_clients:
+            logger.info(f"✅ {len(self.cerebras_clients)} chave(s) Cerebras carregada(s)")
+        else:
+            logger.warning("⚠️ Nenhuma CEREBRAS_API_KEY encontrada")
+
+        self.cerebras_key_index = 0
+        self.cerebras_model_index = 0
+
+        # ── 3. SambaNova (terciário) — 5 chaves, rotação automática ──
+        # Pegue suas chaves em: https://cloud.sambanova.ai/ → API > API Keys
+        self.sambanova_clients = []
+        for var in ["SAMBANOVA_API_KEY", "SAMBANOVA_API_KEY_2", "SAMBANOVA_API_KEY_3", "SAMBANOVA_API_KEY_4", "SAMBANOVA_API_KEY_5"]:
+            key = os.getenv(var)
+            if key:
+                # SambaNova é compatível com a API OpenAI
+                self.sambanova_clients.append(AsyncOpenAI(
+                    api_key=key,
+                    base_url="https://api.sambanova.ai/v1",
+                ))
+                logger.info(f"✅ {var} carregada ({key[:8]}...)")
+
+        if self.sambanova_clients:
+            logger.info(f"✅ {len(self.sambanova_clients)} chave(s) SambaNova carregada(s)")
+        else:
+            logger.warning("⚠️ Nenhuma SAMBANOVA_API_KEY encontrada")
+
+        self.sambanova_key_index = 0
+        self.sambanova_model_index = 0
+
+        # ── 4. OpenRouter (fallback extra, opcional) ──────────
+        # Pegue suas chaves em: https://openrouter.ai/keys
         self.openrouter_clients = []
         for var in ["OPENROUTER_API_KEY", "OPENROUTER_API_KEY_2", "OPENROUTER_API_KEY_3"]:
             key = os.getenv(var)
@@ -382,26 +464,13 @@ class AIChat(commands.Cog):
 
         if self.openrouter_clients:
             logger.info(f"✅ {len(self.openrouter_clients)} chave(s) OpenRouter carregada(s)")
-        else:
-            logger.warning("⚠️ Nenhuma OPENROUTER_API_KEY encontrada — usando só Groq")
 
-        self.or_index = 0  # índice da chave OpenRouter atual
+        self.or_index = 0
 
-        # ── Groq (fallback) ───────────────────────────────────
-        self.groq_keys = []
-        for var in ["GROQ_API_KEY", "GROQ_API_KEY_2", "GROQ_API_KEY_3", "GROQ_API_KEY_4", "GROQ_API_KEY_5"]:
-            key = os.getenv(var)
-            if key:
-                self.groq_keys.append(Groq(api_key=key))
-                logger.info(f"✅ {var} carregada ({key[:8]}...)")
-
-        if not self.groq_keys and not self.openrouter_clients:
-            logger.error("❌ Nenhuma chave de API encontrada!")
-        elif self.groq_keys:
-            logger.info(f"✅ {len(self.groq_keys)} chave(s) Groq carregada(s) (fallback)")
-
-        self.groq_key_index = 0   # índice da chave Groq atual
-        self.groq_model_index = 0  # índice do modelo Groq atual
+        # Verifica se há ao menos um provedor disponível
+        has_any = any([self.groq_keys, self.cerebras_clients, self.sambanova_clients, self.openrouter_clients])
+        if not has_any:
+            logger.error("❌ Nenhuma chave de API encontrada! Configure ao menos GROQ_API_KEY no Railway.")
 
         self.conversation_history = defaultdict(list)
         self.cooldowns = defaultdict(lambda: datetime.min)
@@ -427,82 +496,18 @@ class AIChat(commands.Cog):
             ON CONFLICT (guild_id) DO UPDATE SET ai_channels = $2
         """, guild_id, list(channels))
 
-    async def _call_openrouter(self, messages: list, max_tokens: int, temperature: float,
-                                image_data: tuple | None = None,
-                                preferred_models: list | None = None) -> str | None:
-        """Tenta chamar OpenRouter com os modelos ideais + fallback entre todos os modelos."""
-        if not self.openrouter_clients:
-            return None
-
-        # Monta mensagens com imagem se necessário
-        if image_data:
-            b64, mime = image_data
-            last_user = messages[-1]
-            messages = messages[:-1] + [{
-                "role": "user",
-                "content": [
-                    {"type": "image_url", "image_url": {"url": f"data:{mime};base64,{b64}"}},
-                    {"type": "text", "text": last_user["content"]}
-                ]
-            }]
-            # Com imagem: só o modelo de visão funciona
-            models_to_try = [OPENROUTER_MODELS["vision"]]
-        else:
-            # Começa pelos modelos ideais (em ordem), depois fallback pelos demais
-            if preferred_models:
-                seen = set(preferred_models)
-                models_to_try = list(preferred_models) + [m for m in OPENROUTER_FALLBACK_ORDER if m not in seen]
-            else:
-                models_to_try = list(OPENROUTER_FALLBACK_ORDER)
-
-        for model in models_to_try:
-            # Tenta todas as chaves disponíveis para cada modelo
-            for attempt in range(len(self.openrouter_clients)):
-                client = self.openrouter_clients[self.or_index % len(self.openrouter_clients)]
-                key_num = (self.or_index % len(self.openrouter_clients)) + 1
-                try:
-                    response = await client.chat.completions.create(
-                        model=model,
-                        messages=messages,
-                        max_tokens=max_tokens,
-                        temperature=temperature,
-                        top_p=0.9,
-                        frequency_penalty=0.5,
-                        presence_penalty=0.4,
-                    )
-                    logger.info(f"✅ OpenRouter respondeu via [{model}] chave #{key_num}")
-                    return response.choices[0].message.content
-                except Exception as e:
-                    error = str(e).lower()
-                    is_limit = "429" in error or "quota" in error or "rate" in error or "limit" in error
-                    is_auth = "401" in error or "403" in error or "invalid" in error
-                    is_unavailable = "503" in error or "unavailable" in error or "404" in error
-
-                    if is_auth:
-                        logger.error(f"OpenRouter chave #{key_num} inválida")
-                        self.or_index += 1
-                    elif is_limit:
-                        logger.warning(f"OpenRouter chave #{key_num} com limite no modelo [{model}] — tentando próxima chave")
-                        self.or_index += 1
-                    elif is_unavailable:
-                        logger.warning(f"Modelo [{model}] indisponível — tentando próximo modelo")
-                        break  # vai para o próximo modelo
-                    else:
-                        logger.error(f"Erro OpenRouter #{key_num} [{model}]: {type(e).__name__}: {e}")
-                        self.or_index += 1
-
-        logger.warning("OpenRouter: todos os modelos e chaves falharam")
-        return None
+    # ══════════════════════════════════════════════════════════
+    #  CHAMADAS AOS PROVEDORES
+    # ══════════════════════════════════════════════════════════
 
     async def _call_groq(self, messages: list, max_tokens: int, temperature: float) -> str | None:
-        """Fallback para Groq com rotação de chaves E de modelos."""
+        """Groq — primário. Rotação de chaves E modelos."""
         if not self.groq_keys:
             return None
 
         num_keys = len(self.groq_keys)
         num_models = len(GROQ_MODELS)
 
-        # Tenta cada modelo Groq, e para cada modelo, todas as chaves
         for model_attempt in range(num_models):
             model = GROQ_MODELS[self.groq_model_index % num_models]
 
@@ -528,20 +533,177 @@ class AIChat(commands.Cog):
                     is_model_error = "model" in error or "not found" in error or "invalid model" in error
 
                     if is_model_error:
-                        logger.warning(f"Groq modelo [{model}] não disponível — tentando próximo")
-                        break  # vai para o próximo modelo
+                        logger.warning(f"Groq modelo [{model}] não disponível — próximo modelo")
+                        break
                     elif is_limit:
-                        logger.warning(f"Groq chave #{key_num} com limite no modelo [{model}] — tentando próxima chave")
+                        logger.warning(f"Groq chave #{key_num} com limite [{model}] — próxima chave")
                         self.groq_key_index += 1
                     else:
                         logger.error(f"Erro Groq #{key_num} [{model}]: {type(e).__name__}: {e}")
                         self.groq_key_index += 1
 
-            # Passou para o próximo modelo
             self.groq_model_index += 1
 
-        logger.error("Groq: todos os modelos e chaves falharam")
+        logger.warning("Groq: todos os modelos e chaves falharam")
         return None
+
+    async def _call_cerebras(self, messages: list, max_tokens: int, temperature: float) -> str | None:
+        """Cerebras — secundário. Latência ultra-baixa (hardware WSE-3 próprio)."""
+        if not self.cerebras_clients:
+            return None
+
+        num_keys = len(self.cerebras_clients)
+        num_models = len(CEREBRAS_MODELS)
+
+        for model_attempt in range(num_models):
+            model = CEREBRAS_MODELS[self.cerebras_model_index % num_models]
+
+            for key_attempt in range(num_keys):
+                client = self.cerebras_clients[self.cerebras_key_index % num_keys]
+                key_num = (self.cerebras_key_index % num_keys) + 1
+                try:
+                    response = await client.chat.completions.create(
+                        model=model,
+                        messages=messages,
+                        max_tokens=max_tokens,
+                        temperature=temperature,
+                        top_p=0.9,
+                    )
+                    logger.info(f"✅ Cerebras respondeu via [{model}] chave #{key_num}")
+                    return response.choices[0].message.content
+                except Exception as e:
+                    error = str(e).lower()
+                    is_limit = "429" in error or "quota" in error or "rate" in error
+                    is_model_error = "model" in error or "not found" in error or "invalid" in error
+
+                    if is_model_error:
+                        logger.warning(f"Cerebras modelo [{model}] não disponível — próximo modelo")
+                        break
+                    elif is_limit:
+                        logger.warning(f"Cerebras chave #{key_num} com limite [{model}] — próxima chave")
+                        self.cerebras_key_index += 1
+                    else:
+                        logger.error(f"Erro Cerebras #{key_num} [{model}]: {type(e).__name__}: {e}")
+                        self.cerebras_key_index += 1
+
+            self.cerebras_model_index += 1
+
+        logger.warning("Cerebras: todos os modelos e chaves falharam")
+        return None
+
+    async def _call_sambanova(self, messages: list, max_tokens: int, temperature: float) -> str | None:
+        """SambaNova — terciário. Roda modelos enormes (405B) no free tier."""
+        if not self.sambanova_clients:
+            return None
+
+        num_keys = len(self.sambanova_clients)
+        num_models = len(SAMBANOVA_MODELS)
+
+        for model_attempt in range(num_models):
+            model = SAMBANOVA_MODELS[self.sambanova_model_index % num_models]
+
+            for key_attempt in range(num_keys):
+                client = self.sambanova_clients[self.sambanova_key_index % num_keys]
+                key_num = (self.sambanova_key_index % num_keys) + 1
+                try:
+                    response = await client.chat.completions.create(
+                        model=model,
+                        messages=messages,
+                        max_tokens=max_tokens,
+                        temperature=temperature,
+                        top_p=0.9,
+                    )
+                    logger.info(f"✅ SambaNova respondeu via [{model}] chave #{key_num}")
+                    return response.choices[0].message.content
+                except Exception as e:
+                    error = str(e).lower()
+                    is_limit = "429" in error or "quota" in error or "rate" in error
+                    is_model_error = "model" in error or "not found" in error or "invalid" in error
+
+                    if is_model_error:
+                        logger.warning(f"SambaNova modelo [{model}] não disponível — próximo modelo")
+                        break
+                    elif is_limit:
+                        logger.warning(f"SambaNova chave #{key_num} com limite [{model}] — próxima chave")
+                        self.sambanova_key_index += 1
+                    else:
+                        logger.error(f"Erro SambaNova #{key_num} [{model}]: {type(e).__name__}: {e}")
+                        self.sambanova_key_index += 1
+
+            self.sambanova_model_index += 1
+
+        logger.warning("SambaNova: todos os modelos e chaves falharam")
+        return None
+
+    async def _call_openrouter(self, messages: list, max_tokens: int, temperature: float,
+                                image_data: tuple | None = None,
+                                preferred_models: list | None = None) -> str | None:
+        """OpenRouter — fallback extra (também o único com suporte a imagem)."""
+        if not self.openrouter_clients:
+            return None
+
+        if image_data:
+            b64, mime = image_data
+            last_user = messages[-1]
+            messages = messages[:-1] + [{
+                "role": "user",
+                "content": [
+                    {"type": "image_url", "image_url": {"url": f"data:{mime};base64,{b64}"}},
+                    {"type": "text", "text": last_user["content"]}
+                ]
+            }]
+            models_to_try = [OPENROUTER_MODELS["vision"]]
+        else:
+            if preferred_models:
+                seen = set(preferred_models)
+                models_to_try = list(preferred_models) + [m for m in OPENROUTER_FALLBACK_ORDER if m not in seen]
+            else:
+                models_to_try = list(OPENROUTER_FALLBACK_ORDER)
+
+        for model in models_to_try:
+            for attempt in range(len(self.openrouter_clients)):
+                client = self.openrouter_clients[self.or_index % len(self.openrouter_clients)]
+                key_num = (self.or_index % len(self.openrouter_clients)) + 1
+                try:
+                    response = await client.chat.completions.create(
+                        model=model,
+                        messages=messages,
+                        max_tokens=max_tokens,
+                        temperature=temperature,
+                        top_p=0.9,
+                        frequency_penalty=0.5,
+                        presence_penalty=0.4,
+                    )
+                    logger.info(f"✅ OpenRouter respondeu via [{model}] chave #{key_num}")
+                    return response.choices[0].message.content
+                except Exception as e:
+                    error = str(e).lower()
+                    is_limit = "429" in error or "quota" in error or "rate" in error or "limit" in error
+                    is_auth = "401" in error or "403" in error or "invalid" in error
+                    is_unavailable = "503" in error or "unavailable" in error or "404" in error
+
+                    if is_auth:
+                        logger.error(f"OpenRouter chave #{key_num} inválida")
+                        self.or_index += 1
+                    elif is_limit:
+                        logger.warning(f"OpenRouter chave #{key_num} com limite [{model}] — próxima chave")
+                        self.or_index += 1
+                    elif is_unavailable:
+                        logger.warning(f"Modelo [{model}] indisponível — próximo modelo")
+                        break
+                    else:
+                        logger.error(f"Erro OpenRouter #{key_num} [{model}]: {type(e).__name__}: {e}")
+                        self.or_index += 1
+
+        logger.warning("OpenRouter: todos os modelos e chaves falharam")
+        return None
+
+    # ══════════════════════════════════════════════════════════
+    #  ORQUESTRADOR — Waterfall entre os provedores
+    #
+    #  Imagem: só OpenRouter (único com visão no free tier)
+    #  Texto:  Groq → Cerebras → SambaNova → OpenRouter
+    # ══════════════════════════════════════════════════════════
 
     async def get_ai_response(self, user_message: str, user_id: int, user_name: str,
                                image_data: tuple | None = None) -> str:
@@ -579,17 +741,31 @@ class AIChat(commands.Cog):
             {"role": "system", "content": get_system_prompt() + anti_repeat}
         ] + history
 
-        # Seleciona os melhores modelos para o tipo de mensagem (em ordem de prioridade)
-        preferred_models = select_openrouter_models(query_type, has_image=image_data is not None)
-        logger.info(f"Tipo detectado: [{query_type}] → modelos preferidos: {preferred_models}")
+        reply = None
 
-        # Tenta OpenRouter primeiro (com modelos ideais + fallback automático)
-        reply = await self._call_openrouter(messages, max_tokens, temperature, image_data, preferred_models)
+        if image_data:
+            # Imagem: só OpenRouter tem suporte no free tier
+            logger.info("Imagem detectada → usando OpenRouter (visão)")
+            preferred = select_openrouter_models(query_type, has_image=True)
+            reply = await self._call_openrouter(messages, max_tokens, temperature, image_data, preferred)
+        else:
+            # Texto: waterfall Groq → Cerebras → SambaNova → OpenRouter
+            logger.info(f"Tipo detectado: [{query_type}] → waterfall Groq → Cerebras → SambaNova → OpenRouter")
 
-        # Fallback para Groq se OpenRouter falhou (Groq não suporta imagem)
-        if reply is None and not image_data:
-            logger.info("OpenRouter esgotado — usando Groq como fallback")
             reply = await self._call_groq(messages, max_tokens, temperature)
+
+            if reply is None:
+                logger.info("Groq esgotado — tentando Cerebras")
+                reply = await self._call_cerebras(messages, max_tokens, temperature)
+
+            if reply is None:
+                logger.info("Cerebras esgotado — tentando SambaNova")
+                reply = await self._call_sambanova(messages, max_tokens, temperature)
+
+            if reply is None:
+                logger.info("SambaNova esgotado — tentando OpenRouter (fallback extra)")
+                preferred = select_openrouter_models(query_type, has_image=False)
+                reply = await self._call_openrouter(messages, max_tokens, temperature, None, preferred)
 
         if reply is None:
             if image_data:
@@ -616,14 +792,17 @@ class AIChat(commands.Cog):
         ]
 
         try:
-            # Tenta OpenRouter (modelo fast é suficiente pra JSON simples)
-            text = await self._call_openrouter(
-                messages, max_tokens=150, temperature=0.1,
-                preferred_models=[OPENROUTER_MODELS["fast"]]
-            )
-            # Fallback Groq
+            # Groq é suficiente para JSON simples — rápido e grátis
+            text = await self._call_groq(messages, max_tokens=150, temperature=0.1)
             if text is None:
-                text = await self._call_groq(messages, max_tokens=150, temperature=0.1)
+                text = await self._call_cerebras(messages, max_tokens=150, temperature=0.1)
+            if text is None:
+                text = await self._call_sambanova(messages, max_tokens=150, temperature=0.1)
+            if text is None:
+                text = await self._call_openrouter(
+                    messages, max_tokens=150, temperature=0.1,
+                    preferred_models=[OPENROUTER_MODELS["fast"]]
+                )
             if text is None:
                 return {"action": "none"}
             text = text.replace("```json", "").replace("```", "").strip()
@@ -853,25 +1032,47 @@ class AIChat(commands.Cog):
     @app_commands.command(name="status-ia", description="📊 Mostra status das chaves de IA [ADMIN]")
     @app_commands.default_permissions(administrator=True)
     async def status_ia(self, interaction: discord.Interaction):
-        or_count = len(self.openrouter_clients)
         groq_count = len(self.groq_keys)
-        embed = discord.Embed(title="📊 Status das IAs", color=discord.Color.purple())
-        embed.add_field(name="OpenRouter (primário)", value=f"{'✅' if or_count > 0 else '❌'} {or_count} chave(s)", inline=True)
-        embed.add_field(name="Groq (fallback)", value=f"{'✅' if groq_count > 0 else '❌'} {groq_count} chave(s)", inline=True)
-        embed.add_field(name="Visão (imagens)", value="✅ Ativo" if or_count > 0 else "❌ Inativo", inline=True)
+        cerebras_count = len(self.cerebras_clients)
+        sambanova_count = len(self.sambanova_clients)
+        or_count = len(self.openrouter_clients)
 
-        # Detalhes dos modelos
-        model_info = "\n".join([
-            f"🖼️ Visão: `{OPENROUTER_MODELS['vision'].split('/')[1]}`",
-            f"💬 Chat: `{OPENROUTER_MODELS['chat'].split('/')[1]}`",
-            f"🧠 Acadêmico: `{OPENROUTER_MODELS['academic'].split('/')[1]}`",
-            f"💻 Código: `{OPENROUTER_MODELS['code'].split('/')[1]}`",
-            f"⚡ Rápido: `{OPENROUTER_MODELS['fast'].split('/')[1]}`",
-        ])
-        embed.add_field(name="Modelos OpenRouter", value=model_info, inline=False)
+        embed = discord.Embed(title="📊 Status das IAs", color=discord.Color.purple())
+
+        embed.add_field(
+            name="1️⃣ Groq (primário)",
+            value=f"{'✅' if groq_count > 0 else '❌'} {groq_count} chave(s)",
+            inline=True
+        )
+        embed.add_field(
+            name="2️⃣ Cerebras (secundário)",
+            value=f"{'✅' if cerebras_count > 0 else '❌'} {cerebras_count} chave(s)",
+            inline=True
+        )
+        embed.add_field(
+            name="3️⃣ SambaNova (terciário)",
+            value=f"{'✅' if sambanova_count > 0 else '❌'} {sambanova_count} chave(s)",
+            inline=True
+        )
+        embed.add_field(
+            name="4️⃣ OpenRouter (fallback extra)",
+            value=f"{'✅' if or_count > 0 else '⬜'} {or_count} chave(s)",
+            inline=True
+        )
+        embed.add_field(
+            name="🖼️ Visão (imagens)",
+            value="✅ Ativo via OpenRouter" if or_count > 0 else "❌ Inativo (sem chave OpenRouter)",
+            inline=True
+        )
 
         groq_info = "\n".join([f"`{m}`" for m in GROQ_MODELS])
-        embed.add_field(name="Modelos Groq (fallback)", value=groq_info, inline=False)
+        embed.add_field(name="Modelos Groq", value=groq_info, inline=False)
+
+        cerebras_info = "\n".join([f"`{m}`" for m in CEREBRAS_MODELS])
+        embed.add_field(name="Modelos Cerebras", value=cerebras_info, inline=False)
+
+        sambanova_info = "\n".join([f"`{m}`" for m in SAMBANOVA_MODELS])
+        embed.add_field(name="Modelos SambaNova", value=sambanova_info, inline=False)
 
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
