@@ -40,7 +40,7 @@ from discord import app_commands
 from discord.ext import commands
 from openai import AsyncOpenAI
 
-AI_MODEL = os.getenv("UTIL_AI_MODEL", "gpt-4o-mini")
+AI_MODEL = os.getenv("UTIL_AI_MODEL", "gpt-5-mini")
 
 _START_TIME = time.monotonic()
 
