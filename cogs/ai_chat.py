@@ -40,8 +40,8 @@ OWNER_NAME = os.getenv("OWNER_NAME", "Isabelle")
 OWNER_ID = _safe_int(os.getenv("OWNER_ID"), 1317406607776288872)
 
 # ── OpenAI models ──────────────────────────────────────────────────────────────
-OPENAI_PRIMARY_MODEL   = os.getenv("AI_MODEL_PRIMARY",   "gpt-4o-mini")
-OPENAI_FALLBACK_MODEL  = os.getenv("AI_MODEL_FALLBACK",  "gpt-4o-mini")
+OPENAI_PRIMARY_MODEL   = os.getenv("AI_MODEL_PRIMARY",   "gpt-5-mini")
+OPENAI_FALLBACK_MODEL  = os.getenv("AI_MODEL_FALLBACK",  "gpt-5-mini")
 OPENAI_FAST_MODEL      = os.getenv("AI_MODEL_FAST",      OPENAI_FALLBACK_MODEL)
 OPENAI_REASONING_MODEL = os.getenv("AI_MODEL_REASONING", OPENAI_PRIMARY_MODEL)
 OPENAI_MODELS = tuple(dict.fromkeys((OPENAI_PRIMARY_MODEL, OPENAI_FALLBACK_MODEL)))
