@@ -56,7 +56,7 @@ _STREAMING_NAME = "⚽ Copa do mundo rolando"
 
 # Custom status (em cima, rotativo)
 CUSTOM_STATUSES: list[str] = [
-    "🚀 RevolutX — IA no Discord",
+    "🚀 RevolutX! IA no Discord",
     "🛡️ Moderação v2 ativa",
     "🧊 Frio como uma foca na neve",
     "🤍 Me adicione ao seu servidor",
