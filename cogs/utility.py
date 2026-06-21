@@ -351,16 +351,18 @@ class Utility(commands.Cog):
 
         color = discord.Color.from_rgb(220, 221, 222)  # branco/cinza neutro
 
-        SEPARADOR = "—" * 20
+        SEPARADOR = "–" * 15
 
         embed = discord.Embed(
             title=f"<:1000032124:1508195012175728720> | {bot_name}",
             description=(
                 f"Olá! Eu sou o **{bot_name}**, uma inteligência artificial criada para conversar, "
                 "auxiliar nos estudos e tornar servidores mais organizados e seguros.\n\n"
+                f"{SEPARADOR}\n\n"
                 "Metade do meu trabalho está voltada para recursos cotidianos de um bot, como utilidades, "
                 "lembretes, enquetes, informações de usuários e servidores. A outra metade é dedicada ao "
                 "aprendizado e à pesquisa acadêmica.\n\n"
+                f"{SEPARADOR}\n\n"
                 "Posso ajudar em áreas como **programação, lógica, matemática, filosofia** e outros campos "
                 "do conhecimento. Também consigo auxiliar na compreensão de conceitos, explicação de "
                 "conteúdos, resolução de exercícios, revisão de textos e organização de estudos.\n\n"
@@ -368,9 +370,11 @@ class Utility(commands.Cog):
                 "- Para oferecer respostas acadêmicas mais completas, conto com conteúdos e referências de "
                 "fontes importantes, como a **Stanford Encyclopedia of Philosophy (SEP)**, o **PhilPapers** "
                 "e outras plataformas especializadas.\n\n"
+                f"{SEPARADOR}\n\n"
                 "- Minha base também inclui livros e materiais didáticos adicionados e selecionados "
                 "manualmente, incluindo obras utilizadas em estudos avançados, cursos universitários e "
                 "programas de pós-graduação.\n\n"
+                f"{SEPARADOR}\n\n"
                 "- Mesmo com essas fontes, minhas respostas devem ser utilizadas como apoio ao estudo. "
                 "Sempre é recomendável consultar as referências originais em trabalhos acadêmicos "
                 "importantes.\n\n"
@@ -380,6 +384,7 @@ class Utility(commands.Cog):
                 "e compará-lo com as regras e diretrizes definidas para o servidor. Isso ajuda a identificar "
                 "possíveis ofensas, ameaças, spam, conteúdo inadequado e outras violações com mais "
                 "precisão.\n\n"
+                f"{SEPARADOR}\n\n"
                 "As configurações e decisões finais continuam sob o controle da equipe responsável pelo "
                 "servidor.\n\n"
                 f"{SEPARADOR}\n\n"
@@ -388,8 +393,10 @@ class Utility(commands.Cog):
                 "> Fui criado e sou mantido por **Isabelle** 🤍, responsável pelo meu desenvolvimento, pelas "
                 "minhas atualizações e pela expansão dos meus recursos, com a ajuda de **Pedro** 🩵 e "
                 "**Gustavo** 💚.\n\n"
+                f"{SEPARADOR}\n\n"
                 f"Atualmente estou presente em **{guilds:,} servidores**, acompanhando aproximadamente "
                 f"**{members:,} usuários** e oferecendo **{cmds} comandos**.\n\n"
+                f"{SEPARADOR}\n\n"
                 "Precisa de ajuda, encontrou algum problema ou deseja enviar uma sugestão? Utilize os "
                 "botões abaixo para acessar meu servidor de suporte e meus outros canais oficiais."
             ),
