@@ -351,7 +351,7 @@ class Utility(commands.Cog):
 
         color = discord.Color.from_rgb(220, 221, 222)  # branco/cinza neutro
 
-        SEPARADOR = "────────────────────────────"
+        SEPARADOR = "—" * 20
 
         embed = discord.Embed(
             title=f"<:1000032124:1508195012175728720> | {bot_name}",
@@ -365,13 +365,13 @@ class Utility(commands.Cog):
                 "do conhecimento. Também consigo auxiliar na compreensão de conceitos, explicação de "
                 "conteúdos, resolução de exercícios, revisão de textos e organização de estudos.\n\n"
                 f"{SEPARADOR}\n\n"
-                "Para oferecer respostas acadêmicas mais completas, conto com conteúdos e referências de "
+                "- Para oferecer respostas acadêmicas mais completas, conto com conteúdos e referências de "
                 "fontes importantes, como a **Stanford Encyclopedia of Philosophy (SEP)**, o **PhilPapers** "
                 "e outras plataformas especializadas.\n\n"
-                "Minha base também inclui livros e materiais didáticos adicionados e selecionados "
+                "- Minha base também inclui livros e materiais didáticos adicionados e selecionados "
                 "manualmente, incluindo obras utilizadas em estudos avançados, cursos universitários e "
                 "programas de pós-graduação.\n\n"
-                "Mesmo com essas fontes, minhas respostas devem ser utilizadas como apoio ao estudo. "
+                "- Mesmo com essas fontes, minhas respostas devem ser utilizadas como apoio ao estudo. "
                 "Sempre é recomendável consultar as referências originais em trabalhos acadêmicos "
                 "importantes.\n\n"
                 f"{SEPARADOR}\n\n"
@@ -385,7 +385,7 @@ class Utility(commands.Cog):
                 f"{SEPARADOR}\n\n"
                 f"<:1000032053:1507947052183584910> Fui desenvolvido com a linguagem **Python** "
                 f"`{platform.python_version()}` e a biblioteca **discord.py**.\n\n"
-                "Fui criado e sou mantido por **Isabelle** 🤍, responsável pelo meu desenvolvimento, pelas "
+                "> Fui criado e sou mantido por **Isabelle** 🤍, responsável pelo meu desenvolvimento, pelas "
                 "minhas atualizações e pela expansão dos meus recursos, com a ajuda de **Pedro** 🩵 e "
                 "**Gustavo** 💚.\n\n"
                 f"Atualmente estou presente em **{guilds:,} servidores**, acompanhando aproximadamente "
