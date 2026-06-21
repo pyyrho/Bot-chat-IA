@@ -351,7 +351,7 @@ class Utility(commands.Cog):
 
         color = discord.Color.from_rgb(220, 221, 222)  # branco/cinza neutro
 
-        SEPARADOR = "▬▬▬▬▬▬▬▬▬▬▬▬"
+        SEPARADOR = "────────────────────────────"
 
         embed = discord.Embed(
             title=f"<:1000032124:1508195012175728720> | {bot_name}",
@@ -385,9 +385,9 @@ class Utility(commands.Cog):
                 f"{SEPARADOR}\n\n"
                 f"<:1000032053:1507947052183584910> Fui desenvolvido com a linguagem **Python** "
                 f"`{platform.python_version()}` e a biblioteca **discord.py**.\n\n"
-                "Fui criado e sou mantido por **Isabelle**, responsável pelo meu desenvolvimento, pelas "
-                "minhas atualizações e pela expansão dos meus recursos, com a ajuda de **Pedro** e "
-                "**Gustavo**.\n\n"
+                "Fui criado e sou mantido por **Isabelle** 🤍, responsável pelo meu desenvolvimento, pelas "
+                "minhas atualizações e pela expansão dos meus recursos, com a ajuda de **Pedro** 🩵 e "
+                "**Gustavo** 💚.\n\n"
                 f"Atualmente estou presente em **{guilds:,} servidores**, acompanhando aproximadamente "
                 f"**{members:,} usuários** e oferecendo **{cmds} comandos**.\n\n"
                 "Precisa de ajuda, encontrou algum problema ou deseja enviar uma sugestão? Utilize os "
