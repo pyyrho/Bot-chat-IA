@@ -351,7 +351,7 @@ class Utility(commands.Cog):
 
         color = discord.Color.from_rgb(220, 221, 222)  # branco/cinza neutro
 
-        SEPARADOR = "–" * 15
+        SEPARADOR = "─" * 20
 
         embed = discord.Embed(
             title=f"<:1000032124:1508195012175728720> | {bot_name}",
@@ -394,7 +394,7 @@ class Utility(commands.Cog):
                 "minhas atualizações e pela expansão dos meus recursos, com a ajuda de **Pedro** 🩵 e "
                 "**Gustavo** 💚.\n\n"
                 f"{SEPARADOR}\n\n"
-                f"Atualmente estou presente em **{guilds:,} servidores**, acompanhando aproximadamente "
+                f"- Atualmente estou presente em **{guilds:,} servidores**, acompanhando aproximadamente "
                 f"**{members:,} usuários** e oferecendo **{cmds} comandos**.\n\n"
                 f"{SEPARADOR}\n\n"
                 "Precisa de ajuda, encontrou algum problema ou deseja enviar uma sugestão? Utilize os "
