@@ -4,3 +4,4 @@ aiohttp>=3.10.11,<4.0
 asyncpg==0.30.0
 psutil
 google-genai>=2.9.0,<3.0
+pypdf>=5.0,<7.0
